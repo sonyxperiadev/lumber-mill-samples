@@ -1,0 +1,40 @@
+
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+version="$lumbermillVersion"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    
+    compile ("com.sonymobile:lumbermill-aws:$lumbermillVersion") {
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
+    }
+    compile ("com.sonymobile:lumbermill-aws-lambda:$lumbermillVersion") {
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-sqs'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-sns'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-kms'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-kinesis'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-dynamodb'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-s3'
+        exclude group: 'com.amazonaws', module: 'aws-java-sdk-cognitoidentity'
+    }
+    compile (
+        'ch.qos.logback:logback-core:1.1.7',
+        'ch.qos.logback:logback-classic:1.1.7')
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtime
+    }
+}
+
+build.dependsOn buildZip
