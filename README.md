@@ -23,16 +23,21 @@ This sample does the following.
 
 If you would like to change something, simply edit the groovy file and build.
 
+
+#### Build
+
+This will create build/distributions/lumbermill-lambda-samples-{version}.zip and contains
+all required code.
+
+```
+gradle clean build
+```
+
 #### Installation / Deployment
 
 It is expected that you can deploy a Lambda in AWS Console so we will not go in to details
 how this is done.
 
-- Build
-
-```
-./gradlew clean build
-```
 
 1. Create Lambda function in Amazon console, start by clicking "Create a lambda function" button.
 
