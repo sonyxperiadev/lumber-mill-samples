@@ -1,3 +1,17 @@
+/*
+ * Copyright 2016 Sony Mobile Communications, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 package lumbermill
 
 import lumbermill.api.EventProcessor
@@ -22,6 +36,9 @@ public class LumbermillS3ToKinesisLambda extends S3Lambda {
 
     public static class LumbermillS3EventProcessor implements EventProcessor {
 
+        /**
+         * Invoked for each S3 file with a JsonEvent describing the event
+         */
         @Override
         Observable call(Observable observable) {
 
