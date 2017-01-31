@@ -34,40 +34,41 @@ how this is done.
 ./gradlew clean build
 ```
 
-- Create Lambda function in Amazon console, start by clicking "Create a lambda function" button.
+1. Create Lambda function in Amazon console, start by clicking "Create a lambda function" button.
 
-1. Choose a blank function
+2. Choose a blank function
 
-2. Choose trigger function S3. You can choose to enable trigger now or later.
+3. Choose trigger function S3. You can choose to enable trigger now or later.
       
-      Bucket = your access logs bucket
-      Event type = Complete Multipart Upload
-      Prefix = empty
-      Suffix = .log
+    - Bucket = your access logs bucket
+    - Event type = Complete Multipart Upload
+    - Prefix = empty
+    - Suffix = .log
       
       
-3. Configure function and upload code
+4. Configure function and upload code
 
-      Name = LumbermillS3ToKinesisLambda (or a name of your choice)
-      Runtime = Java 8
+      - Name = LumbermillS3ToKinesisLambda (or a name of your choice)
+      - Runtime = Java 8
+      - Upload function code: build/distributions/lumbermill-lambda-samples-{version}.zip
+      - Set Environment variables (see point 5)
+      - Handler = lumbermill.LumbermillS3ToKinesisLambda
+      - Role = Use an existing or create a new role with json below
+      - Memory = Set to max (1535)
+      - Timeout = 5 min      
       
-      Upload function code: build/distributions/lumbermill-lambda-samples-{version}.zip
       
-      **Environment variables**
-       *stream = your_stream_name (required)*
-       region = your_region  (default is eu-west-1) 
-       endpoint = custom kinesis endpoint (do not set unless you have special demands)
-       put_records_size = batch size (default is 150, max is 500)
-       max_connections = Nr of concurrent connections (default is 1)
-       ms_between_posts = Milliseconds between each kinesis post (per thread), default is 350ms
-        
-      Handler = lumbermill.LumbermillS3ToKinesisLambda
-      Role = Use an existing or create a new role with json below
-      
-      Memory = Set to max (1535)
-      Timeout = 5 min
+5. Environment variables
+       
+       - *stream = your_stream_name (required)*
+       - region = your_region  (default is eu-west-1) 
+       - endpoint = custom kinesis endpoint (do not set unless you have special demands)
+       - put_records_size = batch size (default is 150, max is 500)
+       - max_connections = Nr of concurrent connections (default is 1)
+       - ms_between_posts = Milliseconds between each kinesis post (per thread), default is 350ms        
 
-4. Done
+
+5. Thats it
       
 Under monitoring in AWS Console you can see invocations and errors and details
 and trace logs are found under Cloudwatch Logs.
