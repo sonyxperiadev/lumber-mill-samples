@@ -1,12 +1,122 @@
-#Lumber Mill Samples Project
+# Lumber Mill Samples Project
 
 Samples for <https://github.com/sonyxperiadev/lumber-mill>
 
-We are working on provided more samples dealing with Cloudwatch, S3 and Kinesis and we also want them to come with good deployment support with as little config changes as possible.
+**More samples will be added shortly**
 
-## Stream from cloudwatch logs to Elasticsearch
 
-To get at least one sample out, this really simple Cloudwatch Logs to Elasticsearch lambda can be easliy built and then deployed using AWS Console. Checkout README.md in lumbermill-samples-lambda to get started.
+## Lambda for reading ELB Logs from S3, parse them and write to kinesis
 
-This sample can easily be enriched with grok support etc once you have it deployed.
+Code src/main/groovy/Lumbermill/LumbermillS3Lambda.groovy
+
+This sample does the following.
+
+
+1. Downloads the ELB file
+2. Compresses it
+3. Puts the compressed version to another location
+4. Reads each line 
+5. Groks the ELB into a json structure for each field
+6. Buffers each json before sending to kinesis
+7. Writes to kinesis
+8. Removes original file from s3
+
+If you would like to change something, simply edit the groovy file and build.
+
+#### Installation / Deployment
+
+It is expected that you can deploy a Lambda in AWS Console so we will not go in to details
+how this is done.
+
+- Build
+
+```
+./gradlew clean build
+```
+
+- Create Lambda function in Amazon console, start by clicking "Create a lambda function" button.
+
+1. Choose a blank function
+
+2. Choose trigger function S3. You can choose to enable trigger now or later.
+      
+      Bucket = your access logs bucket
+      Event type = Complete Multipart Upload
+      Prefix = empty
+      Suffix = .log
+      
+      
+3. Configure function and upload code
+
+      Name = LumbermillS3ToKinesisLambda (or a name of your choice)
+      Runtime = Java 8
+      
+      Upload function code: build/distributions/lumbermill-lambda-samples-{version}.zip
+      
+      **Environment variables**
+       *stream = your_stream_name (required)*
+       region = your_region  (default is eu-west-1) 
+       endpoint = custom kinesis endpoint (do not set unless you have special demands)
+       put_records_size = batch size (default is 150, max is 500)
+       max_connections = Nr of concurrent connections (default is 1)
+       ms_between_posts = Milliseconds between each kinesis post (per thread), default is 350ms
+        
+      Handler = lumbermill.LumbermillS3ToKinesisLambda
+      Role = Use an existing or create a new role with json below
+      
+      Memory = Set to max (1535)
+      Timeout = 5 min
+
+4. Done
+      
+Under monitoring in AWS Console you can see invocations and errors and details
+and trace logs are found under Cloudwatch Logs.
+      
+      
+#### Role for S3 to Kinesis with access to cloudwatch logs   
+   
+Use this json when creating the role, limit to your resources if you desire.
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+           "Effect": "Allow",
+           "Action": [
+               "logs:CreateLogGroup",
+               "logs:CreateLogStream",
+               "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Action": [
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow"
+        },
+        {
+            "Action": [
+                "kinesis:PutRecords",
+                "kinesis:GetRecords",
+                "kinesis:GetShardIterator",
+                "kinesis:DescribeStream",
+                "kinesis:ListStreams"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
 
